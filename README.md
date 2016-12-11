@@ -2,7 +2,7 @@
 Easily measure, view and share data-rich, interactive timeseries charts that
 show system performance while running a single- or multi-node linux workload 
 
-Verson 0.92
+Verson 0.93
 
 #Setup
 These scripts use ssh to start/stop monitors and run the workload, even when
@@ -13,10 +13,14 @@ ssh-keygen -t rsa  # Press enter at the prompts
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 ```
+To copy public key to another server, use the following command:
+```
+ssh-copy-id <user_name>@<server_name>
+```
 
 #Try it out
 ```
-sudo apt-get install -y dstat time
+sudo apt-get install -y dstat time git
 git clone https://github.com/jschaub30/viz_workload
 cd viz_monitor/scripts
 cp example.sh your_workload.sh

@@ -52,46 +52,66 @@
 <div class="container-fluid" id="wrapper">
   <div class="row">
     <div ng-repeat="chart in allCharts" class="col-md-6 text-right">
-      <!-- Single button -->
       <div class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <!-- Download button -->
+        <button type="button" class="btn btn-default dropdown-toggle btn-xs" 
+          id="downloadMenu"
+          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="glyphicon glyphicon-download" aria-label="data" aria-hidden="true"></span>
         </button>
-        <ul class="dropdown-menu pull-right">
+        <ul class="dropdown-menu pull-right" aria-labelledby="downloadMenu">
           <li><a href="{{measurement[chart][host].rawFilename}}">Raw data</a></li>
           <li><a href="{{measurement[chart][host].csvFilename}}">Final data (CSV)</a></li>
           <li ng-if="measurement[chart].type == 'heatmap'">
             <a href="{{measurement[chart][host].jsonFilename}}">Final data (JSON)</a></li>
         </ul>
+        <!-- Full screen button -->
+        <button type="button" class="btn btn-default btn-xs">
+          <a href="#measurement/{{runId}}/{{host}}/{{chart}}">
+            <span class="glyphicon glyphicon-fullscreen" aria-label="data" aria-hidden="true"></span></a>
+        </button>
       </div>
-      <div ng-if="measurement[chart].type == 'timeseries'" class="col-md-12 chart timeseries" id="id_{{chart}}"> 
+      <div ng-if="measurement[chart].type == 'timeseries'" class="col-md-12 chart" id="id_{{chart}}"> 
       </div>
       <div ng-if="measurement[chart].type == 'heatmap'" class="col-md-12 chart">
-        <h4 class="text-center">{{measurement[chart].title}}</h4>
+        <div class="col-md-12 axis-title">
+          {{measurement[chart].title}}
+        </div>
         <div class="col-md-1 axis-y">
           <div class="axis-y1"></div>
           <div class="axis-y0">{{measurement[chart].y0}}</div>
         </div>
-        <div class="col-md-11" class="heatmap">
+        <div class="col-md-11" class="">
           <canvas class="heatmap" id="id_{{chart}}"></canvas>
-          <span class="pull-left">t0</span>
-          <span class="pull-right"></span>
+        </div>
+        <div class="axis-x">
+          <div class="col-md-1 axis-label">
+          </div>
+          <div class="col-md-11 axis-label">
+            <span class="pull-left">t0</span>
+            <span class="pull-right"></span>
+          </div>
+          <div class="col-md-12 axis-xlabel">
+            Elapsed time [ sec ]
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 <div class="footer">
-  <div id="run_id_buttons">
+  <div id="run-id-div">
     <a ng-repeat="measurement in measurements" 
        href="#/measurement/{{measurement.run_id}}/{{host}}"
-       class="btn btn-xs" ng-class="measurement.run_id == runId && 'btn-primary'">
+      class="btn btn-xs btn-default footer-buttons"
+      ng-class="measurement.run_id == runId && 'btn-primary'">
       {{measurement.run_id}}</a>
   </div>
-  <div id="cluster_buttons">
+  <div id="hosts-div">
     <a ng-repeat="thisHost in hosts" 
        href=#/measurement/{{runId}}/{{thisHost}}
-       class="btn btn-xs" ng-class="host == thisHost && 'btn-primary'">
+       class="btn btn-xs btn-default footer-buttons"
+       ng-class="host == thisHost && 'btn-primary'">
       {{thisHost}}</a>
   </div>
   <div id="sum_buttons"></div>

@@ -22,6 +22,36 @@ vizWorkloadControllers.controller('summaryCtrl', ['$http', '$location', '$timeou
 vizWorkloadControllers.controller('detailCtrl', ['$scope', '$routeParams', 
     '$http', '$location',
     function($scope, $routeParams, $http, $location) {
+      var drawChart = function(runId, host, measurement){
+        $http.get(runId + '.json').success(function(chartdata){
+          //console.log(chartdata[measurement]);
+          if (chartdata[measurement].type == "timeseries"){
+            $scope.chartType = "timeseries";
+            drawTimeseries('id_chart', chartdata[measurement], host);
+          }
+          if (chartdata[measurement].type == "heatmap"){
+            $scope.chartType = "heatmap";
+            drawHeatmap('id_chart', chartdata[measurement], host);
+            $scope.y0 = "cpu0";
+            if (chartdata[measurement].title.indexOf('GPU') >= 0){
+              $scope.y0 = "gpu0";
+            }
+            $scope.title = chartdata[measurement].title;
+          }
+          $scope.chartdata = chartdata[measurement][host];
+        });
+      };
+
+      $scope.runId = $routeParams.runId;
+      $scope.host = $routeParams.host;
+      $scope.measurement = $routeParams.measurement;
+      drawChart($scope.runId, $scope.host, $scope.measurement)
+    }
+])
+
+vizWorkloadControllers.controller('combinedCtrl', ['$scope', '$routeParams', 
+    '$http', '$location',
+    function($scope, $routeParams, $http, $location) {
       var counter = 0,
       parseTimeFile = function(measurement){
         $http.get(measurement.time.filename).success(function(data){
@@ -63,6 +93,7 @@ vizWorkloadControllers.controller('detailCtrl', ['$scope', '$routeParams',
         $http.get(runId + '.json').success(function(chartdata){
           $scope.measurement = chartdata;
           $scope.allCharts = Object.keys($scope.measurement);
+
           $scope.allTimeCharts = Object.keys($scope.measurement).filter(
               function(key){
                 return $scope.measurement[key].type == "timeseries";
