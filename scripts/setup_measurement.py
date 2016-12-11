@@ -110,6 +110,14 @@ def create_chartdata(run_id, meas_type, hosts):
         monitor = meas_type
         title = 'CPU Interrupts [#] Heatmap'
         chart_type = 'heatmap'
+    elif meas_type == 'ycsb.optput':
+        monitor = 'ycsb'
+        title = 'YCSB Throughput'
+        chart_type = 'timeseries'
+    elif meas_type == 'ycsb.oplatency':
+        monitor = 'ycsb'
+        title = 'YCSB Latency'
+        chart_type = 'timeseries'
 
     obj = {
         'type': chart_type,
@@ -221,6 +229,10 @@ def main():
                 details[meas_type] = create_chartdata(summary['run_id'],
                                                       meas_type,
                                                       summary['hosts'])
+        elif meas_type == 'ycsb':
+            for meas_type in ['ycsb.optput', 'ycsb.oplatency']:
+                details[meas_type] = create_chartdata(summary['run_id'],
+                        meas_type, summary['hosts'])
         else:
             details[meas_type] = create_chartdata(summary['run_id'],
                                                   meas_type, summary['hosts'])

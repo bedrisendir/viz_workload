@@ -77,6 +77,9 @@ start_monitors() {
   MSG_ARRAY=()
   for HOST in $HOSTS; do
     for MONITOR in $MEASUREMENTS; do
+      if [ "$MONITOR" = "ycsb" ];then
+        continue
+      fi
       MSG="Starting $MONITOR on host $HOST"
       debug_message 1 $MSG
       ./start-monitor.sh $MONITOR $HOST $RUN_ID $MEAS_DELAY_SEC &
@@ -94,6 +97,9 @@ stop_monitors() {
   MSG_ARRAY=()
   for HOST in $HOSTS; do
     for MONITOR in $MEASUREMENTS; do
+      if [ "$MONITOR" = "ycsb" ];then
+        continue
+      fi
       MSG="Starting $MONITOR on host $HOST"
       debug_message 1 $MSG
       ./stop-monitor.sh $MONITOR $HOST $RUN_ID ${RUNDIR}/data/raw &
