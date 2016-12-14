@@ -59,6 +59,21 @@ var timeseries_chart = function(data, divId, plotOptions) {
     return new_array;
   },
   summaryChart = function(measurements) {
+    if(measurements.some(meas => !(meas.all_monitors.indexOf('ycsb') == -1)))
+    {
+      //TODO:we can fall back to default if ajax call below fails
+      $.ajax({
+        //async: false,
+        url: "js/ycsb.js",
+        dataType: "script",
+        success: function (data, text) {
+          loadYCSBSummaryChart(measurements);
+        },
+      });
+      //TODO: wait result of loadYCSBSummary and continue with default behaviour
+      return;
+    }
+
     // First create data object from elapsed time properties
     var data = measurements.map(function(measurement){
       return { x:measurement.run_id,

@@ -30,9 +30,15 @@ Creates 4 charts:
 
 ##ycsb (Yahoo Cloud Serving Benchmark)
 
+Visualization tool considers that user might run multiple instances of YCSB. It collects data from all benchmark instances and constructs the timeline.
+
+
 Place YCSB stderr/stdout files as follows:
-2>$RUNDIR/data/raw/${RUN_ID}.${HOSTNAME}.ycsb${INSTANCE_ID}.err.txt 
-1>$RUNDIR/data/raw/${RUN_ID}.${HOSTNAME}.ycsb${INSTANCE_ID}.out.txt
+
+To setup YCSB:
+mkdir -p $RUNDIR/data/raw/ycsb
+2>$RUNDIR/data/raw/ycsb/${RUN_ID}.${HOSTNAME}.ycsb${INSTANCE_ID}.err.txt 
+1>$RUNDIR/data/raw/ycsb/${RUN_ID}.${HOSTNAME}.ycsb${INSTANCE_ID}.out.txt
 
 Example (2 benchmark instances:
 $RUNDIR/data/raw/${RUN_ID}.${HOSTNAME}.ycsb0.err.txt 
@@ -40,13 +46,18 @@ $RUNDIR/data/raw/${RUN_ID}.${HOSTNAME}.ycsb1.err.txt
 $RUNDIR/data/raw/${RUN_ID}.${HOSTNAME}.ycsb0.out.txt 
 $RUNDIR/data/raw/${RUN_ID}.${HOSTNAME}.ycsb1.out.txt 
 
-Creates 2 charts:
+-- If there are multiple iterations for the same setting, ${RUN_ID} can be constructed in order to group experiments on the summary chart.
 
-Assuming that all benchmark YCSB instances started simultaneously, parse script combines timeline data from each instance.
 
-1. Throughput timeline. Includes different type of operations such as (INSERT,READ,UPDATE,READ-MODIFY-WRITE etc.)
+Creates 3 charts:
+
+Assuming that all benchmark YCSB instances started simultaneously, parse script combines timeline and average throughput data from each instance.
+
+1. Throughput timeline. Includes different type of operations such as (TOTAL,INSERT,READ,UPDATE,READ-MODIFY-WRITE etc.)
 
 2. Latency timeline. Includes different type of operations such as (INSERT,READ,UPDATE,READ-MODIFY-WRITE etc.)
+
+3. Summary of average throughputs
 
 
 #How to enable measurements

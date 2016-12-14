@@ -112,11 +112,11 @@ def create_chartdata(run_id, meas_type, hosts):
         chart_type = 'heatmap'
     elif meas_type == 'ycsb.optput':
         monitor = 'ycsb'
-        title = 'YCSB Throughput'
+        title = 'YCSB Throughput [ops/sec]'
         chart_type = 'timeseries'
     elif meas_type == 'ycsb.oplatency':
         monitor = 'ycsb'
-        title = 'YCSB Latency'
+        title = 'YCSB Latency [ms]'
         chart_type = 'timeseries'
 
     obj = {

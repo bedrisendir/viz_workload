@@ -3,6 +3,7 @@ import sys
 import glob
 import re
 import csv
+import os
 
 tput = {}
 latency = {}
@@ -16,6 +17,12 @@ def parseInstance(dataset,instances,interval):
             tput[skey] = {}
         if skey not in latency:
             latency[skey] = {}
+
+        if "TOTAL" not in tput[skey]:
+            tput[skey]["TOTAL"] = int(0)
+
+        tput[skey]["TOTAL"] += int(round(float(line.split()[6])))
+
         ops = re.findall(r"\[(.*?)\]", line)
         flag = False
         for op in ops:
@@ -32,7 +39,7 @@ def parseInstance(dataset,instances,interval):
                 latval = 0
             if opkey not in tput[skey]:
                 tput[skey][opkey] = int(0)
-            tput[skey][opkey] += (opval/interval)
+            tput[skey][opkey] += int(round(float((opval/interval))))
             if opkey not in latency[skey]:
                 latency[skey][opkey] = float(0)
             latency[skey][opkey] += (latval)
@@ -95,18 +102,95 @@ def LATtoCsv(fn,instances,interval):
                print row
         writer.writerow(csvrow)
 
+def generateSummary(summaryfiles,summary_fn,runid,instances):
+    hasSummary = os.path.isfile(summary_fn)
+
+    #read the data from the files
+    avgtput = float(0)
+    for summaryfile in summaryfiles:
+       data = [x.split()[2] for x in open(summaryfile, 'r').readlines() if 'OVERALL' and 'Throughput' in x]
+       avgtput+=float(data[0])
+
+    #parse iteration and runid
+    itertokens = [strr for strr in runid.split("_") if "ITER" in strr]
+    iter_count = 1
+    if itertokens and itertokens[0].split("=")[1].isalnum():
+        runid = runid.split("_")[0]
+        iter_count = itertokens[0].split("=")[1]
+
+    #we now have data as avgtput , runid, and itercount
+
+    dataset={}
+    indexmap={}
+    if hasSummary:
+        reader = csv.reader(open(summary_fn));
+        headerRow = next(reader)
+        index = 0
+        for item in headerRow[1:]:
+            dataset[item]={}
+            indexmap[index]=item
+            index+=1
+        for row in reader:
+            iter_num = int(row[0])
+            iter_index = 0
+            for tput in row[1:]:
+                dataset[indexmap[iter_index]][int(iter_num)] = tput
+                iter_index+=1
+        print dataset
+        print indexmap
+
+    if runid not in dataset:
+        dataset[runid] = {}
+        indexmap[len(indexmap)] = runid
+
+    dataset[runid][int(iter_count)] = avgtput
+    print ""
+    print dataset
+    print indexmap
+    writer = csv.writer(open(summary_fn,'w+'));
+    #construct header
+    header = []
+    header.append("runid")
+    maxVal = 0
+    for key,value in sorted(indexmap.iteritems()):
+        header.append(value)
+        if len(dataset[value]) > maxVal:
+            maxVal = len(dataset[value])
+
+    writer.writerow(header);
+    for i in range(1,1+maxVal):
+        row = []
+        row = row + [0]*(len(indexmap))
+        for key,value in sorted(indexmap.iteritems()):
+            print "--1-"
+            print key
+            print value
+            print row
+            print "--2-"
+            if i in dataset[value]:
+              row[key] = dataset[value][i]
+        writer.writerow([str(i)]+row)
+
+
 
 def main(fn):
+    fn = fn.replace('data/raw', 'data/raw/ycsb')
     timelinefiles = glob.glob(fn+'*err.txt')
     summaryfiles = glob.glob(fn+'*out.txt')
-    out_tput_fn = fn.replace('data/raw', 'data/final') + '.optput.csv'
-    out_lat_fn = fn.replace('data/raw', 'data/final') + '.oplatency.csv'
+    out_tput_fn = fn.replace('data/raw/ycsb', 'data/final') + '.optput.csv'
+    out_lat_fn = fn.replace('data/raw/ycsb', 'data/final') + '.oplatency.csv'
+    finalpath, runid = os.path.split(os.path.abspath(fn.replace('data/raw/ycsb', 'data/final')))
+    print fn
+    print finalpath
+    print runid
+    summary_fn = finalpath  + '/ycsbsummary.csv'
+    runid = runid.split('.')[0]
     instances = len(summaryfiles)
     try:
         tokenValue = re.search('status.interval=(.*)',open(timelinefiles[0], 'r').readline())
         interval = int(tokenValue.group(1).split()[0])
     except:
-        interval = 2
+        interval = 10
     print "YCSB Instances:" + str(instances)
     print "YCSB Interval:"+ str(interval)
     print "YCSB Throughput File:"+ out_tput_fn
@@ -120,6 +204,7 @@ def main(fn):
         dataset.append(parseInstance(instanceData,instances,interval))
     TPUTtoCsv(out_tput_fn,instances,interval)
     LATtoCsv(out_lat_fn,instances,interval)
+    generateSummary(summaryfiles,summary_fn,runid,instances);
 
 if __name__ == '__main__':
     if (len(sys.argv) < 2):
