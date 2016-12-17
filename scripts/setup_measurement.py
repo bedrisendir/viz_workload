@@ -116,7 +116,7 @@ def create_chartdata(run_id, meas_type, hosts):
         chart_type = 'timeseries'
     elif meas_type == 'ycsb.oplatency':
         monitor = 'ycsb'
-        title = 'YCSB Latency [ms]'
+        title = 'YCSB Latency [μs]'
         chart_type = 'timeseries'
 
     obj = {
