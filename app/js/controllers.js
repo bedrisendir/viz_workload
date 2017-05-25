@@ -1,4 +1,4 @@
-'use strict';
+' use strict';
 
 /* Controllers */
 
@@ -22,6 +22,36 @@ vizWorkloadControllers.controller('summaryCtrl', ['$http', '$location', '$timeou
 vizWorkloadControllers.controller('detailCtrl', ['$scope', '$routeParams', 
     '$http', '$location',
     function($scope, $routeParams, $http, $location) {
+      var drawChart = function(runId, host, measurement){
+        $http.get(runId + '.json').success(function(chartdata){
+          //console.log(chartdata[measurement]);
+          if (chartdata[measurement].type == "timeseries"){
+            $scope.chartType = "timeseries";
+            drawTimeseries('id_chart', chartdata[measurement], host);
+          }
+          if (chartdata[measurement].type == "heatmap"){
+            $scope.chartType = "heatmap";
+            drawHeatmap('id_chart', chartdata[measurement], host);
+            $scope.y0 = "cpu0";
+            if (chartdata[measurement].title.indexOf('GPU') >= 0){
+              $scope.y0 = "gpu0";
+            }
+            $scope.title = chartdata[measurement].title;
+          }
+          $scope.chartdata = chartdata[measurement][host];
+        });
+      };
+
+      $scope.runId = $routeParams.runId;
+      $scope.host = $routeParams.host;
+      $scope.measurement = $routeParams.measurement;
+      drawChart($scope.runId, $scope.host, $scope.measurement)
+    }
+])
+
+vizWorkloadControllers.controller('combinedCtrl', ['$scope', '$routeParams', 
+    '$http', '$location',
+    function($scope, $routeParams, $http, $location) {
       var counter = 0,
       parseTimeFile = function(measurement){
         $http.get(measurement.time.filename).success(function(data){
@@ -30,15 +60,23 @@ vizWorkloadControllers.controller('detailCtrl', ['$scope', '$routeParams',
           sec,
           arr;
 
-          arr = data.match(/([0-9]:)+[0-9]+\.+[0-9]+/)[0].split(':');
-          sec = parseFloat(arr.pop());
-          min = parseInt(arr.pop());
-          hr = parseInt(arr.pop());
-          if (!hr) {hr = 0;}
-          measurement.time.elapsed_time_sec = (hr*60*60 + min*60 + sec).toString();
-          measurement.time.exit_status = data.split('Exit status: ')[1].split('\n')[0];
-          measurement.time.exit_clean = measurement.time.exit_status === '0';
-          counter += 1;
+          try {
+            arr = data.match(/([0-9]+:)+[0-9]+.+[0-9]+/)[0].split(':');
+            sec = parseFloat(arr.pop());
+            min = parseInt(arr.pop());
+            hr = parseInt(arr.pop());
+            if (!hr) {hr = 0;}
+            measurement.time.elapsed_time_sec = (hr*60*60 + min*60 + sec).toString();
+            measurement.time.exit_status = data.split('Exit status: ')[1].split('\n')[0];
+            measurement.time.exit_clean = measurement.time.exit_status === '0';
+          }
+          catch(err) {
+            console.log(err.message);
+            measurement.time.elapsed_time_sec = '-1';
+            measurement.time.exit_status = '-1';
+            measurement.time.exit_clean = '-1';
+          }
+	  counter += 1;
           updatePage();
         })
       },
@@ -63,6 +101,7 @@ vizWorkloadControllers.controller('detailCtrl', ['$scope', '$routeParams',
         $http.get(runId + '.json').success(function(chartdata){
           $scope.measurement = chartdata;
           $scope.allCharts = Object.keys($scope.measurement);
+
           $scope.allTimeCharts = Object.keys($scope.measurement).filter(
               function(key){
                 return $scope.measurement[key].type == "timeseries";
@@ -98,7 +137,6 @@ vizWorkloadControllers.controller('detailCtrl', ['$scope', '$routeParams',
           updateDescription();
           if (checkURL()){
             summaryChart($scope.measurements);
-            drawCharts($scope.runId);
           }
         }
       };
@@ -110,6 +148,7 @@ vizWorkloadControllers.controller('detailCtrl', ['$scope', '$routeParams',
       $http.get('summary.json').success(function(data){
         $scope.measurements = data;
         $scope.measurements.forEach(parseTimeFile);
+	drawCharts($scope.runId);
       });
     }
 ]);
