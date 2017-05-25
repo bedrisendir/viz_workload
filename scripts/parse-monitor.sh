@@ -11,4 +11,5 @@ FN=${DIR}/${RUN_ID}.${HOST}.${MONITOR}
 [ $MONITOR == "interrupts" ] && ./parse_interrupts.py $FN
 [ $MONITOR == "gpu" ] && ./parse_gpu.py $FN
 [ $MONITOR == "ycsb" ] && ./parse_ycsb.py $FN
+[ $MONITOR == "pcie" ] && ./parse_pcie.py $FN
 

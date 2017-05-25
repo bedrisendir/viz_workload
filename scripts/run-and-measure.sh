@@ -48,8 +48,12 @@ check_pids() {
     if [ $RC -ne 0 ]
     then 
       debug_message -1 "$CURRENT_MSG did not complete successfully."
-      debug_message -1 "Return code=$RC   Exiting..."
-      exit 1
+      if [ -z "$CONTINUE_ON_ERROR" ]; then
+        debug_message -1 "Return code=$RC   Exiting..."
+        exit 1
+      else
+        debug_message -1 "Continuing despite error"
+      fi
     fi
   done
 }
@@ -106,6 +110,7 @@ stop_monitors() {
       CURRPID=$!
       MSG_ARRAY[$CURRPID]="$MSG"
       PIDS="$PIDS $CURRPID"
+      sleep 0.2
     done
   done
   check_pids ${PIDS}
@@ -178,7 +183,6 @@ stop_all() {
 
 #################### END OF FUNCTIONS ####################
 trap 'stop_all' SIGTERM SIGINT # Kill process monitors if killed early
-
 RUNDIR=`./setup_measurement.py`
 [ $? -ne 0 ] && debug_message -1 "Problem setting up measurement. Exiting..." && exit 1
 debug_message 0 "All data will be saved in $RUNDIR"

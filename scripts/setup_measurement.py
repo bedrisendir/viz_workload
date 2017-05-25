@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 '''
 Input:  environmental variables
@@ -65,7 +65,6 @@ def create_chartdata(run_id, meas_type, hosts):
     data from each host
     '''
     obj = {}
-
     if meas_type == 'cpu':
         title = 'System CPU [%]'
         monitor = 'sys-summary'  # the program that originally records the data
@@ -102,6 +101,38 @@ def create_chartdata(run_id, meas_type, hosts):
         title = 'GPU Memory Utilization [%]'
         monitor = 'gpu'
         chart_type = 'heatmap'
+    elif meas_type == 'pcie.ing_util':
+        monitor = 'pcie'
+        title = 'PCIE Host Utilization In [%]'
+        chart_type = 'timeseries'
+    elif meas_type == 'pcie.egr_util':
+        monitor = 'pcie'
+        title = 'PCIE Host Utilization Out [%]'
+        chart_type = 'timeseries'
+    elif meas_type == 'pcie.ing_size':
+        monitor = 'pcie'
+        title = 'PCIE Host Data Size In'
+        chart_type = 'timeseries'
+    elif meas_type == 'pcie.egr_size':
+        monitor = 'pcie'
+        title = 'PCIE Host Data Size Out'
+        chart_type = 'timeseries'
+    elif meas_type == 'pcie.d_ing_util':
+        monitor = 'pcie'
+        title = 'PCIE Device Utilization In [%]'
+        chart_type = 'timeseries'
+    elif meas_type == 'pcie.d_egr_util':
+        monitor = 'pcie'
+        title = 'PCIE Device Utilization Out [%]'
+        chart_type = 'timeseries'
+    elif meas_type == 'pcie.d_ing_size':
+        monitor = 'pcie'
+        title = 'PCIE Device Data Size In'
+        chart_type = 'timeseries'
+    elif meas_type == 'pcie.d_egr_size':
+        monitor = 'pcie'
+        title = 'PCIE Device Data Size Out'
+        chart_type = 'timeseries'
     elif meas_type == 'cpu-heatmap':
         monitor = meas_type
         title = 'CPU Usage [%] Heatmap'
@@ -233,6 +264,14 @@ def main():
             for meas_type in ['ycsb.optput', 'ycsb.oplatency']:
                 details[meas_type] = create_chartdata(summary['run_id'],
                         meas_type, summary['hosts'])
+        elif meas_type == "pcie":
+            for suffix in ['ing_util', 'egr_util', 'ing_size', 'egr_size',
+                           'd_ing_util', 'd_egr_util', 'd_ing_size',
+                           'd_egr_size']:
+                meas_type = 'pcie.' + suffix
+                details[meas_type] = create_chartdata(summary['run_id'],
+                                                      meas_type,
+                                                      summary['hosts'])
         else:
             details[meas_type] = create_chartdata(summary['run_id'],
                                                   meas_type, summary['hosts'])
