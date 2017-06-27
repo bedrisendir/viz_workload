@@ -117,7 +117,6 @@ stop_monitors() {
         PIDS="$PIDS $CURRPID"
         sleep 0.2
       fi
->>>>>>> jschaub30/master
     done
   done
   check_pids ${PIDS}
