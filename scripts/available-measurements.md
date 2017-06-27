@@ -28,6 +28,30 @@ Creates 4 charts:
 3. Detail GPU utilization (heatmap)
 4. Detail GPU memory utilization (heatmap)
 
+##nvprof
+Data size from NVIDIA nvprof tool
+
+##pcie
+Capture PCIE data where /usr/sbin/fal_app is present
+use "export CONTINUE_ON_ERROR=1" if tool is not present on all hosts
+
+Creates 8 charts:
+1. Host Utilization In
+2. Host Utilization Out
+3. Host Data Size In
+4. Host Data Size Out
+5. Device Utilization In
+6. Device Utilization Out
+7. Device Data Size In
+8. Device Data Size Out
+
+##ib
+Mellanox Infiniband data
+
+#How to enable measurements
+Only 'sys-summary' is enabled by default. To enable more measurements in your 
+script, export the MEASUREMENTS variable as shown below.
+
 ##ycsb (Yahoo Cloud Serving Benchmark)
 
 Visualization tool considers that user might run multiple instances of YCSB. It collects data from all benchmark instances and constructs the timeline.
@@ -58,11 +82,6 @@ Assuming that all benchmark YCSB instances started simultaneously, parse script 
 2. Latency timeline. Includes different type of operations such as (INSERT,READ,UPDATE,READ-MODIFY-WRITE etc.)
 
 3. Summary of average throughputs
-
-
-#How to enable measurements
-Only 'sys-summary' is enabled by default. To enable more measurements in your 
-script, export the MEASUREMENTS variable as shown below.
 
 Examples:
 ```
