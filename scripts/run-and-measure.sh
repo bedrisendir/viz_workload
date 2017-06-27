@@ -105,18 +105,9 @@ stop_monitors() {
   MSG_ARRAY=()
   for HOST in $HOSTS; do
     for MONITOR in $MEASUREMENTS; do
-<<<<<<< HEAD
       if [ "$MONITOR" = "ycsb" ];then
         continue
       fi
-      MSG="Starting $MONITOR on host $HOST"
-      debug_message 1 $MSG
-      ./stop-monitor.sh $MONITOR $HOST $RUN_ID ${RUNDIR}/data/raw &
-      CURRPID=$!
-      MSG_ARRAY[$CURRPID]="$MSG"
-      PIDS="$PIDS $CURRPID"
-      sleep 0.2
-=======
       if [ $MONITOR != "nvprof" ]; then
         MSG="Starting $MONITOR on host $HOST"
         debug_message 1 $MSG
