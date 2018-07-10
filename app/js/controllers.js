@@ -76,7 +76,7 @@ vizWorkloadControllers.controller('combinedCtrl', ['$scope', '$routeParams',
             measurement.time.exit_status = '-1';
             measurement.time.exit_clean = '-1';
           }
-	  counter += 1;
+	      counter += 1;
           updatePage();
         })
       },
